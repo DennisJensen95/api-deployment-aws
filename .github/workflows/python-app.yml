@@ -44,10 +44,38 @@ jobs:
           message: ${{ env.COVERAGE }}
           color: green
 
-  infrastructure-deployment:
+  deploy-infrastructure:
     needs: build-and-verify
-    uses: DennisJensen95/novozymes-deployment/.github/workflows/_infrastructure-deployment.yml@main
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.1.9
+          terraform_wrapper: false
+      - name: Format Terraform
+        working-directory: ./iac
+        run: terraform fmt -check=true -write=false -diff -recursive
+      - name: Initialize Terraform
+        working-directory: ./iac
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Plan Terraform
+        working-directory: ./iac
+        run: terraform plan -detailed-exitcode
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Apply Terraform
+        working-directory: ./iac
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   application-deployment:
-    needs: infrastructure-deployment
+    needs: deploy-infrastructure
     uses: DennisJensen95/novozymes-deployment/.github/workflows/_deployment.yml@main
