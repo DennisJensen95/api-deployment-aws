@@ -45,4 +45,4 @@ jobs:
           filename: novozymes-deployment.json
           label: Code coverage
           message: ${{ env.COVERAGE }}
-          color: ${{ env.COLOR }}
+          color: green
