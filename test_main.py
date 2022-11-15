@@ -17,3 +17,11 @@ class TestCountry(unittest.TestCase):
         self.assertTrue(response.status_code == 200)
         self.assertTrue(response.json() == {
                         "country": "India", "continent": "Asia"})
+
+        response = client.get("/country/denmark")
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(response.json()["country"] == "Denmark")
+        self.assertTrue(response.json()["continent"] == "Europe")
+
+        response = client.get("/country/imageinary-land")
+        self.assertTrue(response.status_code == 404)
