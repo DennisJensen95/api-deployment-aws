@@ -1,0 +1,15 @@
+name: application-deployment
+
+on: workflow_call
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test step
+        run: |
+          echo "hello"
