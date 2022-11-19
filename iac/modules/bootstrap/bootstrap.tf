@@ -1,7 +1,3 @@
-##
-# Module to build the Azure DevOps "seed" configuration
-##
-
 # Build an S3 bucket to store TF state
 resource "aws_s3_bucket" "state_bucket" {
   bucket = var.name_of_s3_bucket
