@@ -1,25 +1,21 @@
+module "aws_vpc" {
+  source  = "cloudposse/vpc/aws"
+  version = "0.28.1"
 
-resource "aws_vpc" "default" {
-  cidr_block           = var.cidr_block
-  instance_tenancy     = var.instance_tenancy
-  enable_dns_support   = var.dns_supported
-  enable_dns_hostnames = var.dns_host_name
-}
-
-resource "aws_internet_gateway" "default" {
-  vpc_id = aws_vpc.default.id
+  cidr_block = var.cidr_block
 }
 
 # Subnets based of of cloudposse
 module "subnets" {
-  source             = "git::https://github.com/cloudposse/terraform-aws-dynamic-subnets.git?ref=tags/2.0.4"
-  namespace          = "rdx"
-  stage              = "dev"
-  name               = var.subnet_name
-  vpc_id             = aws_vpc.default.id
-  igw_id             = [aws_internet_gateway.default.id]
-  ipv4_cidr_block    = [aws_vpc.default.cidr_block]
-  availability_zones = var.availability_zones
+  source  = "cloudposse/dynamic-subnets/aws"
+  version = "0.39.8"
+
+  availability_zones   = var.availability_zones
+  vpc_id               = module.aws_vpc.vpc_id
+  igw_id               = module.aws_vpc.igw_id
+  cidr_block           = module.aws_vpc.vpc_cidr_block
+  nat_gateway_enabled  = true
+  nat_instance_enabled = false
 }
 
 module "security_group" {
@@ -27,7 +23,7 @@ module "security_group" {
   version = "~> 4.0"
 
   name                = var.security_group_name
-  vpc_id              = aws_vpc.default.id
+  vpc_id              = module.aws_vpc.vpc_id
   ingress_cidr_blocks = ["0.0.0.0/0"]
 }
 
@@ -37,17 +33,17 @@ module "alb" {
   version = "~> 5.0"
 
   name            = var.load_balancer_name
-  vpc_id          = aws_vpc.default.id
+  vpc_id          = module.aws_vpc.vpc_id
   subnets         = module.subnets.public_subnet_ids
   security_groups = [module.security_group.security_group_id]
 
   target_groups = [
     {
-      name             = "novozymes-api-2"
+      name             = "novozymes-api"
       backend_port     = 80
       backend_protocol = "HTTP"
       target_type      = "ip"
-      vpc_id           = aws_vpc.default.id
+      vpc_id           = module.aws_vpc.vpc_id
       health_check = {
         path    = "/docs"
         port    = "80"
@@ -68,7 +64,7 @@ module "alb" {
 
 
 output "aws_vpc_id" {
-  value = aws_vpc.default.id
+  value = module.aws_vpc.vpc_id
 }
 
 output "aws_subnet_ids" {

@@ -29,7 +29,7 @@ module "container-registry" {
 
 module "network" {
   source              = "./modules/network"
-  availability_zones  = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
+  availability_zones  = ["eu-north-1a", "eu-north-1b"]
   subnet_name         = "novozymes-subnet"
   load_balancer_name  = "novozymes-lb"
   security_group_name = "novozymes-sg"
@@ -41,7 +41,7 @@ module "ecs" {
 }
 
 module "ecs_alb_service_task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.55.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task.git?ref=tags/0.66.2"
 
   namespace                 = "rdx"
   stage                     = "dev"
@@ -49,6 +49,7 @@ module "ecs_alb_service_task" {
   container_definition_json = module.ecs.container_definition_json
   ecs_cluster_arn           = module.ecs.aws_ecs_cluster_arn
   launch_type               = "FARGATE"
+  platform_version          = "1.3.0"
   vpc_id                    = module.network.aws_vpc_id
   security_group_ids        = [module.network.aws_security_group_id]
   subnet_ids                = module.network.aws_subnet_ids
