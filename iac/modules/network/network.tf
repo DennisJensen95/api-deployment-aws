@@ -1,21 +1,23 @@
 module "aws_vpc" {
   source  = "cloudposse/vpc/aws"
-  version = "0.28.1"
+  version = "2.0.0"
 
-  cidr_block = var.cidr_block
+  ipv4_primary_cidr_block = var.cidr_block
+
+  assign_generated_ipv6_cidr_block = true
 }
 
 # Subnets based of of cloudposse
 module "subnets" {
   source  = "cloudposse/dynamic-subnets/aws"
-  version = "0.39.8"
+  version = "2.0.4"
 
   availability_zones   = var.availability_zones
   vpc_id               = module.aws_vpc.vpc_id
-  igw_id               = module.aws_vpc.igw_id
-  cidr_block           = module.aws_vpc.vpc_cidr_block
+  igw_id               = [module.aws_vpc.igw_id]
+  ipv4_cidr_block      = [module.aws_vpc.vpc_cidr_block]
   nat_gateway_enabled  = true
-  nat_instance_enabled = false
+  nat_instance_enabled = true
 }
 
 module "security_group" {
