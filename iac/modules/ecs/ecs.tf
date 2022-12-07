@@ -5,8 +5,8 @@ resource "aws_ecs_cluster" "cluster" {
 module "container_definition" {
   source = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.58.1"
 
-  container_name  = "novozymes-api"
-  container_image = "778701938697.dkr.ecr.eu-north-1.amazonaws.com/novozymes-ecr:latest"
+  container_name  = "api-api"
+  container_image = "778701938697.dkr.ecr.eu-north-1.amazonaws.com/api-ecr:latest"
   port_mappings = [
     {
       containerPort = 80
@@ -21,7 +21,7 @@ module "ecs_alb_service_task" {
 
   namespace                 = "rdx"
   stage                     = "dev"
-  name                      = "novozymes-api"
+  name                      = "api-api"
   container_definition_json = module.container_definition.json_map_encoded_list
   ecs_cluster_arn           = aws_ecs_cluster.cluster.arn
   launch_type               = "FARGATE"
@@ -38,7 +38,7 @@ module "ecs_alb_service_task" {
     {
       target_group_arn = var.alb_arn
       elb_name         = ""
-      container_name   = "novozymes-api"
+      container_name   = "api-api"
       container_port   = 80
   }]
 }

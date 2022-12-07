@@ -41,7 +41,7 @@ module "alb" {
 
   target_groups = [
     {
-      name             = "novozymes-api"
+      name             = "api-api"
       backend_port     = 80
       backend_protocol = "HTTP"
       target_type      = "ip"

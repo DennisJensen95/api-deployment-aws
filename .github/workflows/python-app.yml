@@ -1,4 +1,4 @@
-name: country-api
+name: api-deployment
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         with:
           auth: ${{ secrets.GIST_TOKEN }}
           gistID: 2b7862c80c14d562c8659e1283543190
-          filename: novozymes-deployment.json
+          filename: api-deployment.json
           label: Code coverage
           message: ${{ env.COVERAGE }}
           color: green
@@ -65,7 +65,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Plan Terraform
         working-directory: ./iac
-        run: terraform plan -detailed-exitcode
+        run: terraform plan -out -detailed-exitcode
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -78,4 +78,4 @@ jobs:
 
   application-deployment:
     needs: deploy-infrastructure
-    uses: DennisJensen95/novozymes-deployment/.github/workflows/_deployment.yml@main
+    uses: DennisJensen95/api-deployment-aws/.github/workflows/_deployment.yml@main
